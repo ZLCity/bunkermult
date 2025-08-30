@@ -12,22 +12,19 @@ from game.crafting import Item
 class PulsatingVein:
     """
     Represents a single segment of a conveyor belt (Pulsating Vein).
-    It moves items in a specific direction.
+    It moves items in a specific direction and consumes power.
     """
-    def __init__(self, direction: tuple[int, int], speed: int = 1, capacity: int = 1):
-        # Direction as a tuple, e.g., (0, 1) for South, (1, 0) for East
+    def __init__(self, direction: tuple[int, int], power_consumption: int, speed: int = 1, capacity: int = 1):
         self.direction = direction
-        self.speed = speed # Not implemented yet, but good for future use
+        self.speed = speed
         self.capacity = capacity
+        self._power_consumption = power_consumption
 
-        # A double-ended queue is efficient for adding/removing from both ends
         self.item_buffer = deque()
 
-        # Position will be set by the Grid when placed
         self.x = -1
         self.y = -1
 
-        # Cooldown to prevent items from moving every single tick if speed > 1
         self._move_cooldown = 0
 
     def accept_item(self, item: Item) -> bool:
@@ -42,28 +39,32 @@ class PulsatingVein:
             return True
         return False
 
-    def update(self, grid): # grid is passed dynamically to avoid circular import
+    def get_power_consumption(self) -> int:
+        """Returns power consumed. A conveyor consumes power only when an item is on it."""
+        return self._power_consumption if self.item_buffer else 0
+
+    def update(self, grid, has_power: bool):
         """
         The core update logic for the conveyor. Tries to move an item to the next tile.
         """
+        if not has_power:
+            return # No power, no movement
+
         if self._move_cooldown > 0:
             self._move_cooldown -= 1
             return
 
         if not self.item_buffer:
-            # Nothing to move
             return
 
-        # Cooldown is over, let's try to move the item
         next_x = self.x + self.direction[0]
         next_y = self.y + self.direction[1]
         next_tile_obj = grid.get_object(next_x, next_y)
 
         if next_tile_obj and hasattr(next_tile_obj, 'accept_item'):
-            item_to_move = self.item_buffer[0] # Peek at the item
+            item_to_move = self.item_buffer[0]
 
             if next_tile_obj.accept_item(item_to_move):
-                # Move was successful, remove item from our buffer
                 self.item_buffer.popleft()
                 print(f"Conveyor at ({self.x}, {self.y}) moved {item_to_move.name} to ({next_x}, {next_y}).")
 

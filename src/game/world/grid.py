@@ -40,16 +40,26 @@ class Grid:
             del self._grid_objects[(x, y)]
             print(f"Removed object at ({x}, {y}).")
 
-    def update_all(self):
+    def update_all(self, power_grid):
         """
         The main update loop for the entire grid.
-        It calls the 'update' method on every object placed on the grid.
+        It calls the 'update' method on every object placed on the grid
+        after calculating the power status.
         """
-        # We iterate over a copy of the values in case the update methods
-        # modify the _grid_objects dictionary during iteration.
+        # First, update all producers (like generators) so they can report their output
+        # In a more complex system, we might have separate lists for this.
         for obj in list(self._grid_objects.values()):
-            # Pass the grid itself to the object's update method
-            obj.update(self)
+            if hasattr(obj, 'get_power_output'):
+                obj.update(self) # Generators update based on their own logic, not power status
+
+        # Then, update the power grid to calculate the balance
+        power_grid.update()
+        print(power_grid) # For debugging
+
+        # Finally, update all consumers with the power status
+        for obj in list(self._grid_objects.values()):
+             if hasattr(obj, 'get_power_consumption'):
+                obj.update(self, power_grid.has_sufficient_power)
 
     def display(self):
         """A simple text-based representation of the grid for debugging."""

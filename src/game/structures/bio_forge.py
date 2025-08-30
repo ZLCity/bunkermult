@@ -9,9 +9,9 @@ from game.crafting import Inventory, Recipe, Item
 class BioForge:
     """
     An automated structure that processes a specific recipe over time.
-    It can interact with other structures by accepting items and ejecting its output.
+    It consumes power and can interact with other structures.
     """
-    def __init__(self, recipe: Recipe, processing_time: int, output_direction: tuple[int, int]):
+    def __init__(self, recipe: Recipe, processing_time: int, output_direction: tuple[int, int], power_consumption: int):
         if not recipe:
             raise ValueError("BioForge must be initialized with a valid recipe.")
         if processing_time <= 0:
@@ -22,6 +22,7 @@ class BioForge:
         self.recipe = recipe
         self.processing_time = processing_time
         self.output_direction = output_direction
+        self._power_consumption = power_consumption
 
         self.progress = 0
         self.is_processing = False
@@ -42,29 +43,36 @@ class BioForge:
         """A player-facing action to retrieve finished products from the forge."""
         return self.output_inventory.remove(item, quantity)
 
+    def get_power_consumption(self) -> int:
+        """Returns the power consumed by this structure."""
+        # A forge only consumes power when it's actively processing.
+        return self._power_consumption if self.is_processing else 0
+
     def _start_processing(self):
         """Internal method to begin a new crafting job."""
         if self.input_inventory.has_items(self.recipe.inputs):
             self.is_processing = True
             self.progress = 0
-            for item, quantity in self.recipe.inputs.items():
-                self.input_inventory.remove(item, quantity)
+            # Note: We consume resources at the end of the cycle in this model,
+            # so if power is lost, the resources are not wasted.
             print(f"({self.x},{self.y}) Bio-Forge: Started processing {self.recipe.outputs}.")
             return True
         return False
 
     def _finish_processing(self, grid):
         """Internal method to handle a completed crafting job."""
+        # Consume resources now that the process is complete
+        for item, quantity in self.recipe.inputs.items():
+            self.input_inventory.remove(item, quantity)
+
         # Add the crafted items to the output buffer
         for item, quantity in self.recipe.outputs.items():
             self.output_inventory.add(item, quantity)
         print(f"({self.x},{self.y}) Bio-Forge: Finished processing. Output: {self.output_inventory.items}")
 
-        # Reset for the next job
         self.progress = 0
         self.is_processing = False
 
-        # Try to eject the output immediately
         self._eject_output(grid)
 
     def _eject_output(self, grid):
@@ -74,22 +82,25 @@ class BioForge:
 
         next_x = self.x + self.output_direction[0]
         next_y = self.y + self.output_direction[1]
-
         next_tile_obj = grid.get_object(next_x, next_y)
 
         if next_tile_obj and hasattr(next_tile_obj, 'accept_item'):
-            # Get the first item from the output inventory to try and move
             item_to_move = next(iter(self.output_inventory.items.keys()))
 
             if next_tile_obj.accept_item(item_to_move):
                 self.output_inventory.remove(item_to_move, 1)
                 print(f"({self.x},{self.y}) Bio-Forge: Ejected {item_to_move.name} to ({next_x}, {next_y}).")
 
-
-    def update(self, grid):
+    def update(self, grid, has_power: bool):
         """
         The core update logic for the machine, to be called once per game tick.
         """
+        if not has_power:
+            # If there's no power, do nothing. Processing progress is paused.
+            if self.is_processing:
+                 print(f"({self.x},{self.y}) Bio-Forge: Power offline. Processing paused.")
+            return
+
         # 1. Try to eject any items waiting in the output buffer
         self._eject_output(grid)
 
@@ -99,7 +110,6 @@ class BioForge:
             if self.progress >= self.processing_time:
                 self._finish_processing(grid)
         else:
-            # If not processing, try to start a new job
             self._start_processing()
 
     def __str__(self):
