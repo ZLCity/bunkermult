@@ -9,3 +9,6 @@ __pycache__/
 .venv
 env/
 venv/
+
+# Ignore downloaded game assets
+/assets/

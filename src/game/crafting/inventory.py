@@ -35,6 +35,19 @@ class Inventory:
                 return False
         return True
 
+    def remove_items(self, items_to_remove: dict[Item, int]) -> bool:
+        """
+        Removes multiple items from the inventory based on a dictionary (e.g., a recipe cost).
+        This is transactional: if not all items can be removed, none are.
+        Returns True on success, False on failure.
+        """
+        if not self.has_items(items_to_remove):
+            return False
+
+        for item, quantity in items_to_remove.items():
+            self.remove(item, quantity)
+        return True
+
     def __str__(self) -> str:
         if not self.items:
             return "Inventory is empty."
