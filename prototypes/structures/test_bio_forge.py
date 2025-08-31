@@ -20,7 +20,7 @@ def run_simulation():
     ingot_recipe = Recipe(inputs={raw_ore: 5}, outputs={metal_ingot: 1})
 
     # Create a Bio-Forge that takes 5 ticks to process one batch of ingots
-    smelting_forge = BioForge(recipe=ingot_recipe, processing_time=5)
+    smelting_forge = BioForge(recipe=ingot_recipe, processing_time=5, output_direction=(0, 1), power_consumption=10)
 
     print("Created a Bio-Forge for smelting ore.")
     print(smelting_forge)
@@ -34,7 +34,9 @@ def run_simulation():
     print("\n--- Starting Game Loop (20 ticks) ---")
     for tick in range(1, 21):
         print(f"\n--- Tick {tick} ---")
-        smelting_forge.update()
+        # The test needs to provide the arguments the real method expects.
+        # We can pass None for the grid as this test doesn't check complex ejection.
+        smelting_forge.update(grid=None, has_power=True)
 
         # To make the simulation easier to follow
         time.sleep(0.1)

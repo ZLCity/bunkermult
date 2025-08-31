@@ -5,6 +5,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from game.crafting import Inventory, Recipe, Item
+from game import assets, settings
 
 class BioForge:
     """
@@ -77,7 +78,7 @@ class BioForge:
 
     def _eject_output(self, grid):
         """Try to move items from the output buffer to an adjacent tile."""
-        if not self.output_inventory.items:
+        if not self.output_inventory.items or grid is None:
             return
 
         next_x = self.x + self.output_direction[0]
@@ -111,6 +112,14 @@ class BioForge:
                 self._finish_processing(grid)
         else:
             self._start_processing()
+
+    def draw(self, surface):
+        """Draws the bio-forge on the given surface."""
+        sprite = assets.STRUCTURE_SPRITES.get("Bio-forge")
+        if sprite:
+            pixel_x = self.x * settings.CELL_SIZE
+            pixel_y = self.y * settings.CELL_SIZE
+            surface.blit(sprite, (pixel_x, pixel_y))
 
     def __str__(self):
         # Provides a simple, single-character representation for the grid display

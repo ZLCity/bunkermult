@@ -7,7 +7,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 
 from game.world import Grid
 from game.crafting import Item, Recipe, Inventory
-from game.structures import BioForge, PulsatingVein
+from game.structures import BioForge, PulsatingVein, BioElectricGenerator
+from game.power.power_grid import PowerGrid
 
 class Chest:
     """A simple destination object for items, acting as a warehouse."""
@@ -40,24 +41,38 @@ def run_full_simulation():
     grid = Grid(width=5, height=6)
 
     # Forge will output downwards (0, 1)
-    forge = BioForge(recipe=ingot_recipe, processing_time=3, output_direction=(0, 1))
+    forge = BioForge(recipe=ingot_recipe, processing_time=3, output_direction=(0, 1), power_consumption=10)
 
     # Conveyors also point downwards
-    conveyor1 = PulsatingVein(direction=(0, 1), speed=2)
-    conveyor2 = PulsatingVein(direction=(0, 1), speed=2)
+    conveyor1 = PulsatingVein(direction=(0, 1), power_consumption=1, speed=2)
+    conveyor2 = PulsatingVein(direction=(0, 1), power_consumption=1, speed=2)
 
     chest = Chest()
 
+    # Create a generator
+    biomass_item = Item("Biomass")
+    generator = BioElectricGenerator(power_output=20, fuel_item=biomass_item, ticks_per_fuel=5)
+
     # Place objects on the grid
+    grid.place_object(generator, 0, 1)
     grid.place_object(forge, 2, 1)
     grid.place_object(conveyor1, 2, 2)
     grid.place_object(conveyor2, 2, 3)
     grid.place_object(chest, 2, 4)
 
+    # 2a. Setup the Power Grid
+    power_grid = PowerGrid()
+    power_grid.add_producer(generator)
+    power_grid.add_consumer(forge)
+    power_grid.add_consumer(conveyor1)
+    power_grid.add_consumer(conveyor2)
+
     print("\nInitial Grid Layout:")
     grid.display()
 
     # 3. Start the simulation
+    print("\n>>> Player adds 5 Fuel (Biomass) to the Generator.")
+    generator.add_fuel(5)
     print("\n>>> Player adds 5 Raw Ore to the Bio-Forge.")
     forge.add_to_input(raw_ore, 5)
 
@@ -65,7 +80,7 @@ def run_full_simulation():
     for tick in range(1, 16):
         print(f"\n--- Tick {tick} ---")
         # In a real game, the grid's update method would be the heart of the game loop
-        grid.update_all()
+        grid.update_all(power_grid)
         grid.display()
         time.sleep(0.2)
 
