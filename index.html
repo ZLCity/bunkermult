@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Бункер · Провідник виживання</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <div>
+            <h1>Бункер · Провідник виживання</h1>
+            <p>Мережева історія для 8 гравців із керуванням ведучого</p>
+          </div>
+        </div>
+        <div class="status-pill" data-connection-status>offline</div>
+      </header>
+
+      <section class="panel lobby" data-section="lobby">
+        <article class="role-card">
+          <header>
+            <span class="badge">Ведучий</span>
+            <h2>Створи кімнату</h2>
+          </header>
+          <p>
+            Керуйте ритуалом відбору: генеруйте код підключення, розкривайте риси учасників і
+            тримайте історію під контролем.
+          </p>
+          <button class="primary" id="create-room">Запустити нову сесію</button>
+          <dl class="room-info hidden" data-room-info>
+            <div>
+              <dt>Код</dt>
+              <dd data-room-code>— — — — —</dd>
+            </div>
+            <div>
+              <dt>Стан розкриття</dt>
+              <dd><span data-reveal-progress>0</span>/<span data-reveal-total>0</span></dd>
+            </div>
+          </dl>
+          <p class="hint">Після створення — перейдіть до панелі ведучого для повного контролю.</p>
+        </article>
+
+        <article class="role-card">
+          <header>
+            <span class="badge">Гравець</span>
+            <h2>Увійди за кодом</h2>
+          </header>
+          <form id="join-form" autocomplete="off">
+            <label class="field">
+              <span>Код кімнати</span>
+              <input type="text" name="code" maxlength="5" inputmode="text" required />
+            </label>
+            <label class="field">
+              <span>Твоє ім'я</span>
+              <input type="text" name="name" maxlength="32" placeholder="Позивний" />
+            </label>
+            <button class="secondary" type="submit">Під'єднатись</button>
+          </form>
+          <p class="hint">Отримай код у ведучого. Місць рівно на 8 виживальників.</p>
+        </article>
+      </section>
+
+      <section class="panel host-panel hidden" data-section="host">
+        <header class="panel-header">
+          <div>
+            <span class="badge">Кімната</span>
+            <h2>Контроль ведучого</h2>
+          </div>
+          <div class="code-display">
+            <span>Код</span>
+            <strong data-host-code></strong>
+          </div>
+        </header>
+        <div class="scenario-block">
+          <div>
+            <h3 data-scenario-title></h3>
+            <p data-scenario-summary></p>
+            <ul data-scenario-flavor></ul>
+          </div>
+          <aside class="bunker-card">
+            <h4>Параметри укриття</h4>
+            <ul>
+              <li>
+                <span>Площа</span>
+                <strong data-bunker-size></strong>
+              </li>
+              <li>
+                <span>Запаси</span>
+                <strong data-bunker-supplies></strong>
+              </li>
+              <li>
+                <span>Особливість</span>
+                <strong data-bunker-special></strong>
+              </li>
+            </ul>
+          </aside>
+        </div>
+        <div class="host-controls">
+          <button class="primary" id="reveal-next">Відкрити наступну рису</button>
+          <button class="ghost" id="reset-reveal">Скинути розкриття</button>
+          <div class="reveal-track">
+            <div class="track" data-reveal-track></div>
+            <span data-reveal-label></span>
+          </div>
+        </div>
+        <div class="host-grid" data-host-grid></div>
+      </section>
+
+      <section class="panel player-panel hidden" data-section="player">
+        <header class="panel-header">
+          <div>
+            <span class="badge">Твій профіль</span>
+            <h2>Очікуй сигнал ведучого</h2>
+          </div>
+          <div class="code-display">
+            <span>Кімната</span>
+            <strong data-player-code></strong>
+          </div>
+        </header>
+        <article class="player-card">
+          <div class="video-frame">
+            <video autoplay muted playsinline data-player-video></video>
+            <div class="video-overlay" data-video-overlay>Запит доступу до камери…</div>
+          </div>
+          <div class="card-details">
+            <div class="identity">
+              <h3 data-player-name></h3>
+              <p class="call-sign">
+                <span data-player-callsign></span>
+                <span class="age" data-player-age></span>
+              </p>
+            </div>
+            <ul class="traits" data-player-traits></ul>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <div class="toast hidden" role="status" data-toast></div>
+
+    <template id="host-player-card">
+      <article class="mini-card">
+        <header>
+          <span class="slot" data-slot></span>
+          <span class="status" data-status></span>
+        </header>
+        <h4 data-name></h4>
+        <ul data-mini-traits></ul>
+      </article>
+    </template>
+
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

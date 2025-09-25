@@ -1,0 +1,10 @@
+{
+  "name": "bunkermult",
+  "version": "1.0.0",
+  "description": "Мережева гра Бункер на 8 гравців",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  }
+}
