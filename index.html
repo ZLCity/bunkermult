@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Бункер: Штучний відбір</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <article class="card scenario">
+          <div class="phase-indicator">
+            <span class="badge">Фаза</span>
+            <strong class="phase-label">Ознайомлення</strong>
+          </div>
+          <h1>Сценарій Бункера</h1>
+          <h2></h2>
+          <p></p>
+          <ul class="scenario-flavor"></ul>
+        </article>
+        <article class="card">
+          <div class="phase-indicator">
+            <span class="badge">Бункер</span>
+            <strong>Параметри укриття</strong>
+          </div>
+          <div class="bunker"></div>
+          <p class="trust-summary"></p>
+          <div class="controls">
+            <button class="primary-button" id="new-scenario">Новий сценарій</button>
+            <button class="secondary-button" id="reroll-all">Перегенерувати склад</button>
+            <button class="secondary-button" id="next-phase">Наступна фаза</button>
+          </div>
+        </article>
+      </section>
+
+      <section>
+        <header class="phase-indicator" style="margin-bottom: 16px">
+          <span class="badge">Команда</span>
+          <strong>8 виживальників, яких обрав ШІ</strong>
+        </header>
+        <div class="players-grid"></div>
+      </section>
+
+      <p class="footer-note">
+        Генерація карток здійснюється внутрішнім алгоритмом ШІ, який комбінує професії,
+        навички, характер і приховані мотиви, аби створити унікальний наратив.
+      </p>
+    </main>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>
